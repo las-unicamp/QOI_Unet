@@ -80,7 +80,7 @@ def main():
         train_runner.epoch = epoch_from_previous_run
         valid_runner.epoch = epoch_from_previous_run
 
-    for epoch in range(NUM_EPOCHS):
+    for epoch in range(NUM_EPOCHS):  # pylint: disable=unused-variable
         epoch_loss, epoch_acc = run_epoch(
             train_runner=train_runner,
             valid_runner=valid_runner,
