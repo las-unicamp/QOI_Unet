@@ -1,11 +1,10 @@
-from typing import Any, Optional, List
+from typing import Any, Optional, Tuple
 from tqdm import tqdm
 import torch
 from torch.utils.data.dataloader import DataLoader
 from torchmetrics import MeanSquaredError
 
 from src.tracking import NetworkTracker, Stage
-# from src.losses import LogCoshLoss
 
 
 class Runner:
@@ -50,7 +49,7 @@ class Runner:
 
     def _parse_data(
         self, inputs: torch.Tensor, targets: torch.Tensor
-    ) -> List[torch.Tensor]:
+    ) -> Tuple[torch.Tensor, torch.Tensor]:
         inputs = torch.hstack(inputs)
         inputs = inputs.to(device=self.device)
         targets = targets.to(device=self.device)
@@ -66,7 +65,7 @@ class Runner:
             predictions = self.model(inputs)
         return predictions
 
-    def run(self, tracker: NetworkTracker) -> List[float]:
+    def run(self, tracker: NetworkTracker) -> Tuple[float, float]:
         num_batches = len(self.loader)
         progress_bar = tqdm(enumerate(self.loader), total=num_batches, leave=True)
 
