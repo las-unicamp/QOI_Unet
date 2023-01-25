@@ -1,19 +1,24 @@
-from typing import List, Any
+from typing import List, Any, Tuple
 import torch
 from torch.utils.data.dataloader import DataLoader
+from torch.utils.data import Dataset
+
 from src.dataset import Image2ImageDataset
 
 
-def get_dataloaders(
+TrainDataset = Dataset
+ValidDataset = Dataset
+TestDataset = Dataset
+
+
+def _get_datasets(
     path_to_dataset,
-    num_workers: int,
-    batch_size: int,
     input_column_names: List[str],
     output_column_name: str,
     transform_train: Any,
     transform_valid: Any,
     transform_test: Any,
-) -> List[DataLoader]:
+) -> Tuple[TrainDataset, ValidDataset, TestDataset]:
     dataset = Image2ImageDataset(
         path_to_dataset,
         input_column_names=input_column_names,
@@ -50,6 +55,34 @@ def get_dataloaders(
     print("# of training data", len(train_set))
     print("# of validation data", len(valid_set))
     print("# of test data", len(test_set))
+
+    return train_set, valid_set, test_set
+
+
+TrainLoader = DataLoader
+ValidLoader = DataLoader
+TestLoader = DataLoader
+
+
+def get_dataloaders(
+    path_to_dataset,
+    num_workers: int,
+    batch_size: int,
+    input_column_names: List[str],
+    output_column_name: str,
+    transform_train: Any,
+    transform_valid: Any,
+    transform_test: Any,
+) -> Tuple[TrainLoader, ValidLoader, TestLoader]:
+
+    train_set, valid_set, test_set = _get_datasets(
+        path_to_dataset,
+        input_column_names,
+        output_column_name,
+        transform_train,
+        transform_valid,
+        transform_test,
+    )
 
     train_loader = DataLoader(
         train_set,
