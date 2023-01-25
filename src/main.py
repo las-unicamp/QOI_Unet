@@ -44,7 +44,7 @@ def main():
         transform_train = data_transforms
         transform_valid = data_transforms
 
-    train_loader, valid_loader, _ = get_dataloaders(
+    train_loader, valid_loader = get_dataloaders(
         PATH_TO_DATASET,
         num_workers=NUM_WORKERS,
         batch_size=BATCH_SIZE,
@@ -52,7 +52,6 @@ def main():
         output_column_name=OUTPUT_COLUMN_NAME,
         transform_train=transform_train,
         transform_valid=transform_valid,
-        transform_test=data_transforms,
     )
 
     optimizer = torch.optim.NAdam(model.parameters(), lr=LEARNING_RATE)

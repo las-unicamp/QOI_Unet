@@ -8,7 +8,6 @@ from src.dataset import Image2ImageDataset
 
 TrainDataset = Dataset
 ValidDataset = Dataset
-TestDataset = Dataset
 
 
 def _get_datasets(
@@ -17,8 +16,7 @@ def _get_datasets(
     output_column_name: str,
     transform_train: Any,
     transform_valid: Any,
-    transform_test: Any,
-) -> Tuple[TrainDataset, ValidDataset, TestDataset]:
+) -> Tuple[TrainDataset, ValidDataset]:
     dataset = Image2ImageDataset(
         path_to_dataset,
         input_column_names=input_column_names,
@@ -27,11 +25,9 @@ def _get_datasets(
 
     train_set = dataset
     valid_set = dataset
-    test_set = dataset
 
     train_set.transform = transform_train
     valid_set.transform = transform_valid
-    test_set.transform = transform_test
 
     train_proportion = 0.8
     valid_proportion = 0.1
@@ -46,22 +42,19 @@ def _get_datasets(
 
     indices_train = indices[:train_size].tolist()
     indices_valid = indices[train_size : (train_size + valid_size)].tolist()
-    indices_test = indices[(train_size + valid_size) :].tolist()
 
     train_set = torch.utils.data.Subset(train_set, indices_train)
     valid_set = torch.utils.data.Subset(valid_set, indices_valid)
-    test_set = torch.utils.data.Subset(test_set, indices_test)
 
     print("# of training data", len(train_set))
     print("# of validation data", len(valid_set))
-    print("# of test data", len(test_set))
+    print("# of test data", len(dataset) - train_size - valid_size)
 
-    return train_set, valid_set, test_set
+    return train_set, valid_set
 
 
 TrainLoader = DataLoader
 ValidLoader = DataLoader
-TestLoader = DataLoader
 
 
 def get_dataloaders(
@@ -72,16 +65,14 @@ def get_dataloaders(
     output_column_name: str,
     transform_train: Any,
     transform_valid: Any,
-    transform_test: Any,
-) -> Tuple[TrainLoader, ValidLoader, TestLoader]:
+) -> Tuple[TrainLoader, ValidLoader]:
 
-    train_set, valid_set, test_set = _get_datasets(
+    train_set, valid_set = _get_datasets(
         path_to_dataset,
         input_column_names,
         output_column_name,
         transform_train,
         transform_valid,
-        transform_test,
     )
 
     train_loader = DataLoader(
@@ -99,13 +90,5 @@ def get_dataloaders(
         pin_memory=True,
         drop_last=True,
     )
-    test_loader = DataLoader(
-        test_set,
-        batch_size=1,
-        shuffle=False,
-        num_workers=num_workers,
-        pin_memory=True,
-        drop_last=True,
-    )
 
-    return train_loader, valid_loader, test_loader
+    return train_loader, valid_loader
